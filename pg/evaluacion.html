@@ -4516,31 +4516,9 @@
                 if (warning) warning.classList.remove('hidden');
             }
             
-            console.log('🔍 Estado inicial del sistema...');
-            const validation = showConfigDiagnostic();
-
-            if (EVALUATION_CONFIG) {
-                console.log('✅ Sistema listo para usar');
-
-                // Actualizar contadores en la pantalla de inicio si está visible
-                if (!document.getElementById('startScreen').classList.contains('hidden')) {
-                    updateStartScreenCounters();
-                }
-
-                // Mostrar información de configuración
-                console.group('📋 RESUMEN DE CONFIGURACIÓN ACTUAL');
-                console.log('📝 Título:', EVALUATION_CONFIG.general?.title || 'No definido');
-                console.log('📚 Materia:', EVALUATION_CONFIG.general?.subtitle || 'No definido');
-                console.log('👨‍🏫 Profesor:', EVALUATION_CONFIG.general?.professor || 'No definido');
-                console.log('❓ Preguntas:', validation.stats?.totalQuestions || 0);
-                console.log('🔗 Pares:', validation.stats?.totalPairs || 0);
-                console.log('🎯 Palabras:', validation.stats?.totalWords || 0);
-                console.log('⚖️ Ponderación total:', validation.stats?.totalWeight + '%' || 'No calculado');
-                console.groupEnd();
-            } else {
-                console.log('⏳ Configuración se cargará al autenticarse');
-                console.log('💡 Tip: La configuración JSON se descargará automáticamente al ingresar la clave correcta');
-            }
+            // NO ejecutamos diagnósticos ni validaciones aquí porque disparan peticiones de red
+            // El sistema se mantiene en silencio total hasta que se ingrese la clave
+            console.log('⏳ Sistema listo. Esperando clave de acceso para cargar configuración.');
 
             console.group('ℹ️ INFORMACIÓN DEL SISTEMA');
             console.log('🔒 Autenticación: Requerida');
