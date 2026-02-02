@@ -1292,23 +1292,21 @@
         // Decodificar en tiempo de ejecución con atob()
         
         // URL del archivo cifrado dinámica (desde parámetro 'pb' en la URL)
+        // Función para obtener el parámetro 'pb' de la URL (encriptado con AES)
         function getEncryptedConfigUrlB64() {
             const urlParams = new URLSearchParams(window.location.search);
             const pbParam = urlParams.get('pb');
             
-            // Si existe el parámetro 'pb', usarlo. Si no, usar el valor por defecto (opcional)
             if (pbParam) {
-                console.log('🔗 Parámetro "pb" detectado en la URL');
                 return pbParam;
             }
             
-            // Valor por defecto (puedes dejarlo vacío o con una URL de ejemplo)
-            console.warn('⚠️ No se detectó el parámetro "pb" en la URL. Usando configuración por defecto.');
-            // Esta URL por defecto también debe estar encriptada con AES + Base64 si se usa
+            // Valor por defecto (debe estar encriptado con AES + Base64)
             return "U2FsdGVkX19WTVlSRE5XU2vO8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z"; 
         }
         
-        let ENCRYPTED_CONFIG_URL_B64 = getEncryptedConfigUrlB64();
+        // NO inicializamos variables globales que dependan de la URL aquí
+        let ENCRYPTED_CONFIG_URL_B64 = null;
     
 
         // Variable global para almacenar la configuración cargada
@@ -1367,12 +1365,14 @@
             if (!secretKey || secretKey.trim().length === 0) {
                 throw new Error('Clave incorrecta. Se requiere una clave para descifrar el archivo.');
             }
+
+            // Obtener el parámetro pb justo en este momento
+            ENCRYPTED_CONFIG_URL_B64 = getEncryptedConfigUrlB64();
             
             // Desencriptar URL usando AES con la clave proporcionada
             let encryptedConfigUrl;
             try {
                 console.log('🔒 Desencriptando URL base con AES...');
-                // La URL viene encriptada con AES y codificada en Base64
                 const decryptedUrl = CryptoJS.AES.decrypt(ENCRYPTED_CONFIG_URL_B64, secretKey);
                 encryptedConfigUrl = decryptedUrl.toString(CryptoJS.enc.Utf8);
                 
@@ -4484,15 +4484,13 @@
             console.log('🚀 Evaluación Digital cargada correctamente');
             console.log('🔒 Sistema de cifrado AES activado');
             
-            // No intentamos resolver la URL ni el nombre del archivo hasta que tengamos la clave
-            console.log('📡 Esperando clave de acceso para desencriptar configuración');
+            // El sistema está en espera total hasta la autenticación
+            console.log('📡 Sistema en espera de clave de acceso');
 
-            // Mostrar guía de estructura JSON esperada
-            showJSONStructureGuide();
-
-            // Verificar si falta el parámetro pb
+            // Verificar si falta el parámetro pb (solo visual, no ejecuta lógica)
             const urlParams = new URLSearchParams(window.location.search);
             if (!urlParams.get('pb')) {
+                console.warn('⚠️ No se detectó el parámetro "pb" en la URL.');
                 const warning = document.getElementById('pbMissingWarning');
                 if (warning) warning.classList.remove('hidden');
             }
