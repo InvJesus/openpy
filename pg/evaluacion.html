@@ -1292,20 +1292,28 @@
         // Decodificar en tiempo de ejecución con atob()
         
         // URL del archivo cifrado dinámica (desde parámetro 'pb' en la URL)
-        // Función para obtener el parámetro 'pb' de la URL (encriptado con AES)
+        // Función para obtener el parámetro 'pb' de la URL
         function getEncryptedConfigUrlB64() {
             const urlParams = new URLSearchParams(window.location.search);
-            const pbParam = urlParams.get('pb');
+            let pbParam = urlParams.get('pb');
             
             if (pbParam) {
+                console.log('🔗 Parámetro "pb" detectado en la URL');
+                // Limpiar espacios y eliminar corchetes si existen
+                pbParam = pbParam.trim();
+                if (pbParam.startsWith('[') && pbParam.endsWith(']')) {
+                    pbParam = pbParam.substring(1, pbParam.length - 1);
+                    console.log('✂️ Corchetes eliminados del parámetro pb');
+                }
                 return pbParam;
             }
             
-            // Valor por defecto (debe estar encriptado con AES + Base64)
+            console.warn('⚠️ No se detectó el parámetro "pb" en la URL. Usando configuración por defecto.');
+            // Esta URL por defecto debe estar encriptada con AES si se desea usar
             return "U2FsdGVkX19WTVlSRE5XU2vO8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z8Y9Z"; 
         }
         
-        // NO inicializamos variables globales que dependan de la URL aquí
+        // Variable global para el parámetro pb (encriptado)
         let ENCRYPTED_CONFIG_URL_B64 = null;
     
 
@@ -1366,16 +1374,27 @@
                 throw new Error('Clave incorrecta. Se requiere una clave para descifrar el archivo.');
             }
 
-            // Obtener el parámetro pb justo en este momento
+            // Obtener el parámetro pb justo ahora
             ENCRYPTED_CONFIG_URL_B64 = getEncryptedConfigUrlB64();
             
             // Desencriptar URL usando AES con la clave proporcionada
             let encryptedConfigUrl;
             try {
                 console.log('🔒 Desencriptando URL base con AES...');
-                const decryptedUrl = CryptoJS.AES.decrypt(ENCRYPTED_CONFIG_URL_B64, secretKey);
-                encryptedConfigUrl = decryptedUrl.toString(CryptoJS.enc.Utf8);
                 
+                // Intentar desencriptar directamente
+                let decrypted = CryptoJS.AES.decrypt(ENCRYPTED_CONFIG_URL_B64, secretKey);
+                encryptedConfigUrl = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                // Si falla, intentar decodificar de Base64 primero (por si acaso)
+                if (!encryptedConfigUrl || !encryptedConfigUrl.startsWith('http')) {
+                    try {
+                        const decodedPB = atob(ENCRYPTED_CONFIG_URL_B64);
+                        decrypted = CryptoJS.AES.decrypt(decodedPB, secretKey);
+                        encryptedConfigUrl = decrypted.toString(CryptoJS.enc.Utf8);
+                    } catch(e) {}
+                }
+
                 if (!encryptedConfigUrl || !encryptedConfigUrl.startsWith('http')) {
                     throw new Error('La clave es incorrecta para desencriptar la URL.');
                 }
@@ -4484,16 +4503,21 @@
             console.log('🚀 Evaluación Digital cargada correctamente');
             console.log('🔒 Sistema de cifrado AES activado');
             
-            // El sistema está en espera total hasta la autenticación
+            // El sistema espera a la autenticación para resolver la URL
             console.log('📡 Sistema en espera de clave de acceso');
 
-            // Verificar si falta el parámetro pb (solo visual, no ejecuta lógica)
+            // Mostrar guía de estructura JSON esperada
+            showJSONStructureGuide();
+
+            // Verificar si falta el parámetro pb (solo visual)
             const urlParams = new URLSearchParams(window.location.search);
             if (!urlParams.get('pb')) {
-                console.warn('⚠️ No se detectó el parámetro "pb" en la URL.');
                 const warning = document.getElementById('pbMissingWarning');
                 if (warning) warning.classList.remove('hidden');
             }
+            
+            console.log('🔍 Estado inicial del sistema...');
+            const validation = showConfigDiagnostic();
 
             if (EVALUATION_CONFIG) {
                 console.log('✅ Sistema listo para usar');
