@@ -4483,25 +4483,19 @@
         document.addEventListener('DOMContentLoaded', function () {
             console.log('🚀 Evaluación Digital cargada correctamente');
             console.log('🔒 Sistema de cifrado AES activado');
-            console.log('🌐 URL del archivo cifrado: [ENCRIPTADA]');
             
-            // El nombre del archivo se inicializará después de desencriptar la URL
-            console.log('📡 Esperando desencriptación de URL para detectar archivo .enc');
-            console.log('📊 Intentos actuales para este archivo:', getAttemptCount());
+            // No intentamos resolver la URL ni el nombre del archivo hasta que tengamos la clave
+            console.log('📡 Esperando clave de acceso para desencriptar configuración');
 
             // Mostrar guía de estructura JSON esperada
             showJSONStructureGuide();
 
-            // Ejecutar diagnóstico inicial (sin configuración cargada aún)
-            
             // Verificar si falta el parámetro pb
             const urlParams = new URLSearchParams(window.location.search);
             if (!urlParams.get('pb')) {
                 const warning = document.getElementById('pbMissingWarning');
                 if (warning) warning.classList.remove('hidden');
             }
-    console.log('🔍 Estado inicial del sistema...');
-            const validation = showConfigDiagnostic();
 
             if (EVALUATION_CONFIG) {
                 console.log('✅ Sistema listo para usar');
