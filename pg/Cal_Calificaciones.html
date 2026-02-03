@@ -1,0 +1,2568 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Language" content="es">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Calificaciones Estudiantiles</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            /* Protección contra selección de texto */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            /* Protección contra arrastrar */
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .progress-bar {
+            background: #f3f4f6;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 25%;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .step.active {
+            color: white;
+        }
+        
+        .step.completed {
+            color: white;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .step.active .step-number {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: #059669;
+            color: white;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            display: none;
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #10b981;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .section h3 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-field label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .input-field input, .input-field select {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            /* Permitir selección solo en campos de entrada */
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+        
+        .input-field input:focus, .input-field select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        .percentage-display {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-weight: 700;
+            color: #2d3748;
+            margin-top: 15px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .final-score {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #2d3748;
+            margin: 15px 0;
+        }
+        
+        .grade-badge {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 15px 0;
+        }
+        
+        .grade-na { background: #fecaca; color: #dc2626; }
+        .grade-sa { background: #fed7aa; color: #ea580c; }
+        .grade-de { background: #bfdbfe; color: #2563eb; }
+        .grade-au { background: #bbf7d0; color: #059669; }
+        
+        .breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .breakdown-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .breakdown-item h4 {
+            margin: 0 0 10px 0;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        
+        .breakdown-item .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .institutional-header {
+            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+            color: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);
+        }
+        
+        .institutional-header h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        
+        .institutional-header .subtitle {
+            margin: 0;
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        .academic-seal {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px auto;
+            font-size: 1.8rem;
+            color: #1e40af;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .result-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #10b981;
+        }
+        
+        .result-header h2 {
+            margin: 0 0 20px 0;
+            color: #2d3748;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .student-info {
+            margin-top: 20px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .info-row {
+            margin: 12px 0;
+            color: #4a5568;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-row strong {
+            color: #2d3748;
+            font-weight: 600;
+            min-width: 140px;
+            text-align: left;
+        }
+        
+        .info-value {
+            color: #059669;
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        .qr-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 2px solid #10b981;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 25px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+        }
+        
+        .qr-section h3 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .qr-subtitle {
+            color: #059669;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+        
+        .qr-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            display: inline-block;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: 4px solid #10b981;
+            position: relative;
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 0;
+        }
+        
+        .qr-info {
+            margin: 20px 0 0 0;
+            color: #4a5568;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .verification-code {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        /* Estilos compactos para resultados */
+        .compact-info {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid #10b981;
+        }
+        
+        .student-data-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .data-row {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .data-row:last-child {
+            border-bottom: none;
+        }
+        
+        .data-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 160px;
+            text-align: left;
+        }
+        
+        .data-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2d3748;
+            text-align: left;
+            flex: 1;
+        }
+        
+        .final-result {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .breakdown-compact {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .breakdown-compact .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .breakdown-compact .breakdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .breakdown-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .breakdown-detail {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        
+        .breakdown-score {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+        
+        .verification-compact {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .qr-container-small {
+            flex-shrink: 0;
+        }
+        
+        .qr-container-small #qrcode {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .verification-info {
+            flex: 1;
+        }
+        
+        .verification-info h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .verification-info p {
+            margin: 8px 0 0 0;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+        
+        /* Estilos para el modal de advertencia de seguridad */
+        #securityWarning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .security-modal {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            margin: 20px;
+            box-shadow: 0 20px 40px rgba(220, 38, 38, 0.3);
+            border: 3px solid #fecaca;
+            animation: securityPulse 2s infinite;
+        }
+        
+        @keyframes securityPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .security-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: securityBlink 1s infinite;
+        }
+        
+        @keyframes securityBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .security-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .security-message {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        
+        .security-warning {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #fecaca;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .security-button {
+            background: white;
+            color: #dc2626;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .security-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        /* Estilos para el visor de PDF embebido */
+        #pdfPreviewContainer {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        #pdfPreviewContainer .pdf-header {
+            transition: all 0.3s ease;
+        }
+        
+        #pdfPreviewContainer .pdf-header:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        #pdfPreviewContainer .btn {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        
+        #pdfPreviewContainer .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        #pdfPreviewContainer .pdf-viewer {
+            transition: all 0.3s ease;
+        }
+        
+        #pdfPreviewContainer .pdf-viewer:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        /* Responsividad para el visor de PDF */
+        @media (max-width: 768px) {
+            #pdfPreviewContainer {
+                padding: 10px;
+            }
+            
+            #pdfPreviewContainer .pdf-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            #pdfPreviewContainer .pdf-header .title {
+                font-size: 16px;
+            }
+            
+            #pdfPreviewContainer .pdf-viewer {
+                height: 500px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #pdfPreviewContainer {
+                padding: 5px;
+            }
+            
+            #pdfPreviewContainer .pdf-header {
+                padding: 10px 15px;
+            }
+            
+            #pdfPreviewContainer .pdf-header .title {
+                font-size: 14px;
+            }
+            
+            #pdfPreviewContainer .pdf-viewer {
+                height: 400px;
+            }
+            
+            #pdfPreviewContainer .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+            .input-group {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .steps {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+                padding: 0 10px;
+            }
+            
+            .step {
+                font-size: 0.8rem;
+            }
+            
+            .step-number {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+            
+            .institutional-header {
+                padding: 20px 15px;
+            }
+            
+            .institutional-header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .institutional-header .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .academic-seal {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+                margin-bottom: 10px;
+            }
+            
+            .final-score {
+                font-size: 2.5rem;
+            }
+            
+            .grade-badge {
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
+            
+            .verification-compact {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .steps {
+                gap: 5px;
+            }
+            
+            .step span {
+                display: none;
+            }
+            
+            .final-score {
+                font-size: 2rem;
+            }
+            
+            .breakdown-label {
+                font-size: 0.8rem;
+            }
+            
+            .breakdown-score {
+                font-size: 1rem;
+            }
+            
+            .verification-info h4 {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Calculadora de Calificaciones</h1>
+            <p>Sistema de evaluación estudiantil integral</p>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="steps">
+                <div class="step active" id="step1">
+                    <div class="step-number">1</div>
+                    <span>Estudiante</span>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <span>Configuración</span>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-number">3</div>
+                    <span>Evaluaciones</span>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-number">4</div>
+                    <span>Resultado</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Paso 1: Datos del Estudiante -->
+            <div class="section active" id="section1">
+                <h3>👤 Datos del Estudiante</h3>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="nombreCompleto">Nombre Completo (Apellidos, Nombres)</label>
+                        <input type="text" id="nombreCompleto" placeholder="García López, Juan Carlos" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="parcial">Parcial</label>
+                        <select id="parcial" required>
+                            <option value="">Seleccionar parcial...</option>
+                            <option value="Primero">Primero</option>
+                            <option value="Segundo">Segundo</option>
+                            <option value="Tercero">Tercero</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="asignatura">Asignatura</label>
+                        <select id="asignatura" required>
+                            <option value="">Seleccionar asignatura...</option>
+                            <option value="Administración de Bases de Datos">Administración de Bases de Datos</option>
+                            <option value="Extracción de Conocimiento en Bases de Datos">Extracción de Conocimiento en Bases de Datos</option>
+                            <option value="Tecnologías para Manejo Masivo de Datos">Tecnologías para Manejo Masivo de Datos</option>
+                            <option value="Cómputo en la Nube">Cómputo en la Nube</option>
+                        </select>
+                    </div>
+                    <div class="input-field">
+                        <label for="grupoAsignatura">Grupo de Asignatura</label>
+                        <input type="text" id="grupoAsignatura" placeholder="7IRI1" required>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <div></div>
+                    <button class="btn btn-primary" onclick="nextStep(1)">Siguiente →</button>
+                </div>
+            </div>
+            
+            <!-- Paso 2: Configuración de Ponderaciones -->
+            <div class="section" id="section2">
+                <h3>⚙️ Configuración de Ponderaciones <button id="lockToggle" title="Desbloquear edición" style="margin-left: 8px; padding: 4px 8px; font-size: 0.85rem; background:#0ea5e9; color:white; border:none; border-radius:6px; cursor:pointer;">🔒</button></h3>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="ponderacionAsistencias">% Asistencias</label>
+                        <input type="number" id="ponderacionAsistencias" min="0" max="100" value="10" step="1" required readonly style="background-color: #f8fafc; cursor: not-allowed;">
+                    </div>
+                    <div class="input-field">
+                        <label for="ponderacionParticipaciones">% Participaciones</label>
+                        <input type="number" id="ponderacionParticipaciones" min="0" max="100" value="50" step="1" required readonly style="background-color: #f8fafc; cursor: not-allowed;">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="ponderacionEvaluaciones">% Evaluaciones</label>
+                        <input type="number" id="ponderacionEvaluaciones" min="0" max="100" value="40" step="1" required readonly style="background-color: #f8fafc; cursor: not-allowed;">
+                    </div>
+                    <div class="input-field">
+                        <div class="percentage-display" id="totalPonderacion" style="margin-top: 25px;">
+                            Total: 100%
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #e0f2fe; border: 1px solid #0288d1; border-radius: 10px; padding: 15px; margin-top: 20px;">
+                    <p style="margin: 0; color: #01579b; font-size: 0.9rem; font-weight: 600;">
+                        ℹ️ <strong>Ponderaciones automáticas por parcial:</strong><br>
+                        • Primer y Segundo Parcial: 10% Asistencias, 50% Participaciones, 40% Evaluaciones<br>
+                        • Tercer Parcial: 20% Asistencias, 40% Participaciones, 40% Evaluaciones
+                    </p>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep(2)">← Anterior</button>
+                    <button class="btn btn-primary" onclick="nextStep(2)" id="nextBtn2">Siguiente →</button>
+                </div>
+            </div>
+            
+            <!-- Paso 3: Evaluaciones -->
+            <div class="section" id="section3">
+                <h3>📊 Datos de Evaluación</h3>
+                
+                <!-- Asistencias -->
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 id="asistenciasTitle" style="margin: 0 0 15px 0; color: #059669;">📅 Asistencias (10%)</h4>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="totalAsistencias">Asistencias Posibles</label>
+                            <input type="number" id="totalAsistencias" min="1" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="asistenciasObtenidas">Asistencias Acudidas</label>
+                            <input type="number" id="asistenciasObtenidas" min="0" required>
+                        </div>
+                    </div>
+                    <div class="percentage-display" id="asistenciasPercentage">
+                        Porcentaje de Asistencias: 0%
+                    </div>
+                </div>
+                
+                <!-- Participaciones -->
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 id="participacionesTitle" style="margin: 0 0 15px 0; color: #059669;">🙋‍♂️ Participaciones (50%)</h4>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="totalParticipaciones">Participaciones Posibles</label>
+                            <input type="number" id="totalParticipaciones" min="1" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="participacionesObtenidas">Participaciones Obtenidas</label>
+                            <input type="number" id="participacionesObtenidas" min="0" required>
+                        </div>
+                    </div>
+                    <div class="percentage-display" id="participacionesPercentage">
+                        Porcentaje de Participaciones: 0%
+                    </div>
+                </div>
+                
+                <!-- Evaluaciones -->
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 id="evaluacionesTitle" style="margin: 0 0 15px 0; color: #059669;">📝 Evaluaciones (40%)</h4>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="totalEvaluaciones">Evaluaciones Posibles</label>
+                            <input type="number" id="totalEvaluaciones" min="1" required>
+                        </div>
+                        <div class="input-field">
+                            <label for="evaluacionesObtenidas">Evaluaciones Obtenidas</label>
+                            <input type="number" id="evaluacionesObtenidas" min="0" required>
+                        </div>
+                    </div>
+                    <div class="percentage-display" id="evaluacionesPercentage">
+                        Porcentaje de Evaluaciones: 0%
+                    </div>
+                </div>
+                
+                <!-- Puntos Adicionales -->
+                <div style="background: white; padding: 20px; border-radius: 10px;">
+                    <h4 style="margin: 0 0 15px 0; color: #059669;">⭐ Puntos Adicionales</h4>
+                    <div class="input-field">
+                        <label for="puntosAdicionales">Puntos Adicionales Globales (Máximo 100)</label>
+                        <input type="number" id="puntosAdicionales" min="0" max="100" value="0" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="prevStep(3)">← Anterior</button>
+                    <button class="btn btn-primary" onclick="calculateGrade()">🧮 Calcular Calificación</button>
+                </div>
+            </div>
+            
+            <!-- Paso 4: Resultado -->
+            <div class="section" id="section4">
+                <div class="institutional-header">
+                    <div class="academic-seal">🎓</div>
+                    <h1>Universidad Tecnológica de Tecámac</h1>
+                    <p class="subtitle">División de Tecnologías de la Información y Comunicación</p>
+                </div>
+                
+                <!-- Información del estudiante -->
+                <div class="compact-info">
+                    <h3 style="margin: 0 0 15px 0; color: #2d3748; font-size: 1.2rem; font-weight: 700; border-bottom: 2px solid #10b981; padding-bottom: 8px;">📋 Datos del Estudiante</h3>
+                    <div class="student-data-grid">
+                        <div class="data-row">
+                            <span class="data-label">Estudiante:</span>
+                            <span class="data-value" id="resultNombre">-</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Parcial:</span>
+                            <span class="data-value" id="resultParcial">-</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Asignatura:</span>
+                            <span class="data-value" id="resultAsignatura">-</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Grupo:</span>
+                            <span class="data-value" id="resultGrupoAsignatura">-</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Profesor:</span>
+                            <span class="data-value">MTI Jesús E. Romero Moreno</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Fecha de Evaluación:</span>
+                            <span class="data-value" id="resultFecha">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calificación final -->
+                <div class="final-result">
+                    <h3 style="margin: 0 0 15px 0; color: #2d3748; font-size: 1.2rem; font-weight: 700; border-bottom: 2px solid #10b981; padding-bottom: 8px;">🎯 Calificación Final</h3>
+                    <div class="score-container">
+                        <div class="final-score" id="finalScore">0</div>
+                        <div class="grade-badge" id="gradeBadge">NA - No Acreditado</div>
+                    </div>
+                </div>
+                
+                <!-- Desglose de calificaciones -->
+                <div class="breakdown-compact">
+                    <h3 style="margin: 0 0 15px 0; color: #2d3748; font-size: 1.2rem; font-weight: 700; border-bottom: 2px solid #10b981; padding-bottom: 8px;">📊 Resultados de la Evaluación</h3>
+                    <div class="breakdown-item">
+                        <div>
+                            <span class="breakdown-label" id="breakdownAsistencias">Asistencias (10%)</span>
+                            <div class="breakdown-detail" id="asistenciasDetail">0 de 0 puntos</div>
+                        </div>
+                        <span class="breakdown-score" id="asistenciasScore">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <div>
+                            <span class="breakdown-label" id="breakdownParticipaciones">Participaciones (50%)</span>
+                            <div class="breakdown-detail" id="participacionesDetail">0 de 0 puntos</div>
+                        </div>
+                        <span class="breakdown-score" id="participacionesScore">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <div>
+                            <span class="breakdown-label" id="breakdownEvaluaciones">Evaluaciones (40%)</span>
+                            <div class="breakdown-detail" id="evaluacionesDetail">0 de 0 puntos</div>
+                        </div>
+                        <span class="breakdown-score" id="evaluacionesScore">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">Puntos Adicionales</span>
+                        <span class="breakdown-score" id="puntosAdicionalesScore">0</span>
+                    </div>
+                </div>
+                
+                <!-- Verificación digital -->
+                <div class="verification-compact">
+                    <h3 style="margin: 0 0 15px 0; color: #2d3748; font-size: 1.2rem; font-weight: 700; border-bottom: 2px solid #10b981; padding-bottom: 8px; width: 100%;">🔐 Verificación Digital</h3>
+                    <div style="display: flex; align-items: center; gap: 20px; width: 100%;">
+                        <div class="qr-container-small">
+                            <div id="qrcode"></div>
+                        </div>
+                        <div class="verification-info">
+                            <h4>Código de Autenticidad</h4>
+                            <div class="verification-code" id="verificationCode">ID: CALC-2024-XXXX</div>
+                            <p>Escanea el código QR para verificar la autenticidad de este documento académico</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="resetForm()">Nueva Evaluación</button>
+                    <button class="btn btn-primary" onclick="generatePDF()" style="background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);">📄 Generar PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Advertencia de Seguridad -->
+    <div id="securityWarning">
+        <div class="security-modal">
+            <div class="security-icon">🚫</div>
+            <div class="security-title">¡ACCESO DENEGADO!</div>
+            <div class="security-message">
+                Por motivos de seguridad, no está permitido acceder al código fuente de esta aplicación.
+            </div>
+            <div class="security-warning">
+                ⚠️ Esta aplicación está protegida contra ingeniería inversa y modificación no autorizada.
+            </div>
+            <button class="security-button" onclick="closeSecurityWarning()">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- Librerías para generar códigos QR y PDF -->
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    
+    <script>
+        // ========================================
+        // SISTEMA DE PROTECCIÓN DE SEGURIDAD
+        // ========================================
+        
+        // Variables globales
+        var currentStep = 1;
+        var securityAttempts = 0;
+        var maxSecurityAttempts = 3;
+        
+        // Función para mostrar advertencia de seguridad
+        function showSecurityWarning(message) {
+            securityAttempts++;
+            var warning = document.getElementById('securityWarning');
+            var modal = warning.querySelector('.security-modal');
+            
+            if (securityAttempts >= maxSecurityAttempts) {
+                modal.querySelector('.security-message').textContent = 
+                    'Se han detectado múltiples intentos de acceso no autorizado. ' +
+                    'La aplicación se cerrará por seguridad.';
+                modal.querySelector('.security-button').textContent = 'Cerrar Aplicación';
+                modal.querySelector('.security-button').onclick = function() {
+                    window.close();
+                };
+            } else {
+                modal.querySelector('.security-message').textContent = message;
+            }
+            
+            warning.style.display = 'flex';
+        }
+        
+        // Función para cerrar advertencia de seguridad
+        function closeSecurityWarning() {
+            document.getElementById('securityWarning').style.display = 'none';
+        }
+        
+        // Protección contra clic derecho
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            showSecurityWarning('No está permitido acceder al menú contextual. Por seguridad, esta función está deshabilitada.');
+            return false;
+        });
+        
+        // Protección contra atajos de teclado
+        document.addEventListener('keydown', function(e) {
+            // F12 - Herramientas de desarrollador
+            if (e.keyCode === 123) {
+                e.preventDefault();
+                showSecurityWarning('Las herramientas de desarrollador están deshabilitadas por seguridad.');
+                return false;
+            }
+            
+            // Ctrl+Shift+I - Herramientas de desarrollador
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+                showSecurityWarning('Las herramientas de desarrollador están deshabilitadas por seguridad.');
+                return false;
+            }
+            
+            // Ctrl+U - Ver código fuente
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+                showSecurityWarning('No está permitido ver el código fuente. Por seguridad, esta función está deshabilitada.');
+                return false;
+            }
+            
+            // Ctrl+S - Guardar página
+            if (e.ctrlKey && e.keyCode === 83) {
+                e.preventDefault();
+                showSecurityWarning('No está permitido guardar esta página. Por seguridad, esta función está deshabilitada.');
+                return false;
+            }
+            
+            // Ctrl+A - Seleccionar todo
+            if (e.ctrlKey && e.keyCode === 65) {
+                e.preventDefault();
+                showSecurityWarning('No está permitido seleccionar todo el contenido. Por seguridad, esta función está deshabilitada.');
+                return false;
+            }
+            
+            // Ctrl+C - Copiar
+            if (e.ctrlKey && e.keyCode === 67) {
+                e.preventDefault();
+                showSecurityWarning('No está permitido copiar contenido. Por seguridad, esta función está deshabilitada.');
+                return false;
+            }
+            
+            // Ctrl+V - Pegar
+            if (e.ctrlKey && e.keyCode === 86) {
+                e.preventDefault();
+                showSecurityWarning('No está permitido pegar contenido. Por seguridad, esta función está deshabilitada.');
+                return false;
+            }
+            
+            // Ctrl+Shift+C - Inspector de elementos
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+                e.preventDefault();
+                showSecurityWarning('El inspector de elementos está deshabilitado por seguridad.');
+                return false;
+            }
+            
+            // Ctrl+Shift+J - Consola
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                e.preventDefault();
+                showSecurityWarning('La consola de desarrollador está deshabilitada por seguridad.');
+                return false;
+            }
+        });
+        
+        // Protección contra arrastrar y soltar
+        document.addEventListener('dragstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // Protección contra selección de texto
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+            return false;
+        });
+        
+        // Detección de herramientas de desarrollador
+        var devtools = {
+            open: false,
+            orientation: null
+        };
+        
+        var threshold = 160;
+        
+        setInterval(function() {
+            if (window.outerHeight - window.innerHeight > threshold || 
+                window.outerWidth - window.innerWidth > threshold) {
+                if (!devtools.open) {
+                    devtools.open = true;
+                    showSecurityWarning('Se han detectado herramientas de desarrollador abiertas. Por seguridad, ciertas funciones están restringidas.');
+                }
+            } else {
+                devtools.open = false;
+            }
+        }, 500);
+        
+        // Protección contra consola
+        var noop = function() {};
+        var methods = ['log', 'debug', 'info', 'warn', 'error', 'trace', 'dir', 'group', 'groupEnd', 'time', 'timeEnd', 'profile', 'profileEnd', 'count', 'clear', 'assert'];
+        for (var i = 0; i < methods.length; i++) {
+            console[methods[i]] = noop;
+        }
+        
+        // Protección contra inspección de elementos
+        document.addEventListener('keydown', function(e) {
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) {
+                e.preventDefault();
+                showSecurityWarning('La inspección de elementos está deshabilitada por seguridad.');
+                return false;
+            }
+        });
+        
+        // Protección contra copia de texto
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+            showSecurityWarning('No está permitido copiar contenido de esta aplicación. Por seguridad, esta función está deshabilitada.');
+            return false;
+        });
+        
+        // Protección contra impresión
+        window.addEventListener('beforeprint', function(e) {
+            e.preventDefault();
+            showSecurityWarning('La impresión de esta página está deshabilitada por seguridad.');
+            return false;
+        });
+        
+        // Protección contra guardar como
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 83) {
+                e.preventDefault();
+                showSecurityWarning('No está permitido guardar esta página. Por seguridad, esta función está deshabilitada.');
+                return false;
+            }
+        });
+        
+        // Mensaje de advertencia en consola
+        console.clear();
+        console.log('%c¡ADVERTENCIA DE SEGURIDAD!', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('%cEsta aplicación está protegida contra ingeniería inversa.', 'color: orange; font-size: 14px;');
+        console.log('%cCualquier intento de modificación será detectado y reportado.', 'color: red; font-size: 12px;');
+        
+        // Protección adicional contra inspección de elementos
+        document.addEventListener('keydown', function(e) {
+            // Detectar intentos de abrir herramientas de desarrollador
+            if (e.keyCode === 123 || 
+                (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
+                (e.ctrlKey && e.shiftKey && e.keyCode === 67) ||
+                (e.ctrlKey && e.shiftKey && e.keyCode === 74)) {
+                e.preventDefault();
+                e.stopPropagation();
+                showSecurityWarning('Acceso denegado: Las herramientas de desarrollador están deshabilitadas por seguridad.');
+                return false;
+            }
+        });
+        
+        // Protección contra modificación del DOM
+        var originalAppendChild = Node.prototype.appendChild;
+        var originalInsertBefore = Node.prototype.insertBefore;
+        var originalRemoveChild = Node.prototype.removeChild;
+        
+        Node.prototype.appendChild = function(child) {
+            if (child.tagName === 'SCRIPT' && child.src === '') {
+                showSecurityWarning('Intento de inyección de código detectado. Acción bloqueada por seguridad.');
+                return this;
+            }
+            return originalAppendChild.call(this, child);
+        };
+        
+        // Protección contra evaluación de código
+        var originalEval = window.eval;
+        window.eval = function(code) {
+            showSecurityWarning('Evaluación de código JavaScript bloqueada por seguridad.');
+            return null;
+        };
+        
+        // Protección contra Function constructor
+        var originalFunction = window.Function;
+        window.Function = function() {
+            showSecurityWarning('Creación de funciones dinámicas bloqueada por seguridad.');
+            return function() {};
+        };
+        
+        // ========================================
+        // FIN DEL SISTEMA DE PROTECCIÓN
+        // ========================================
+        
+        // Función para navegar al siguiente paso
+        function nextStep(step) {
+            if (validateStep(step)) {
+                currentStep = step + 1;
+                updateUI();
+            }
+        }
+        
+        // Función para navegar al paso anterior
+        function prevStep(step) {
+            currentStep = step - 1;
+            updateUI();
+        }
+        
+        // Función para actualizar la interfaz de usuario
+        function updateUI() {
+            // Ocultar todas las secciones
+            var sections = document.querySelectorAll('.section');
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].classList.remove('active');
+            }
+            
+            // Mostrar sección actual
+            var currentSection = document.getElementById('section' + currentStep);
+            if (currentSection) {
+                currentSection.classList.add('active');
+            }
+            
+            // Actualizar pasos
+            var steps = document.querySelectorAll('.step');
+            for (var i = 0; i < steps.length; i++) {
+                steps[i].classList.remove('active', 'completed');
+                if (i + 1 === currentStep) {
+                    steps[i].classList.add('active');
+                } else if (i + 1 < currentStep) {
+                    steps[i].classList.add('completed');
+                }
+            }
+            
+            // Actualizar barra de progreso
+            var progress = (currentStep / 4) * 100;
+            var progressFill = document.getElementById('progressFill');
+            if (progressFill) {
+                progressFill.style.width = progress + '%';
+            }
+        }
+        
+        // Función para validar cada paso
+        function validateStep(step) {
+            if (step === 1) {
+                var nombre = document.getElementById('nombreCompleto').value;
+                var parcial = document.getElementById('parcial').value;
+                var asignatura = document.getElementById('asignatura').value;
+                var grupoAsignatura = document.getElementById('grupoAsignatura').value;
+                
+                if (!nombre || !parcial || !asignatura || !grupoAsignatura) {
+                    alert('Por favor completa todos los campos del estudiante');
+                    return false;
+                }
+                return true;
+            } else if (step === 2) {
+                // Las ponderaciones son automáticas, siempre válidas
+                return true;
+            }
+            return true;
+        }
+        
+        // Función para actualizar ponderaciones en tiempo real
+        function updatePonderaciones() {
+            var asistencias = parseFloat(document.getElementById('ponderacionAsistencias').value) || 0;
+            var participaciones = parseFloat(document.getElementById('ponderacionParticipaciones').value) || 0;
+            var evaluaciones = parseFloat(document.getElementById('ponderacionEvaluaciones').value) || 0;
+            var total = asistencias + participaciones + evaluaciones;
+            
+            var totalElement = document.getElementById('totalPonderacion');
+            if (totalElement) {
+                totalElement.textContent = 'Total: ' + total + '%';
+                totalElement.style.color = total === 100 ? '#059669' : '#dc2626';
+            }
+            
+            // Actualizar títulos de secciones
+            var asistenciasTitle = document.getElementById('asistenciasTitle');
+            var participacionesTitle = document.getElementById('participacionesTitle');
+            var evaluacionesTitle = document.getElementById('evaluacionesTitle');
+            
+            if (asistenciasTitle) asistenciasTitle.textContent = '📅 Asistencias (' + asistencias + '%)';
+            if (participacionesTitle) participacionesTitle.textContent = '🙋‍♂️ Participaciones (' + participaciones + '%)';
+            if (evaluacionesTitle) evaluacionesTitle.textContent = '📝 Evaluaciones (' + evaluaciones + '%)';
+        }
+        
+        // Función para validar y corregir valores en tiempo real
+        function validateAndCorrectValues() {
+            // Validar asistencias
+            var totalAsistencias = parseFloat(document.getElementById('totalAsistencias').value) || 0;
+            var asistenciasObtenidas = parseFloat(document.getElementById('asistenciasObtenidas').value) || 0;
+            var asistenciasInput = document.getElementById('asistenciasObtenidas');
+            
+            if (asistenciasObtenidas > totalAsistencias && totalAsistencias > 0) {
+                asistenciasInput.value = totalAsistencias;
+                asistenciasInput.style.borderColor = '#dc2626';
+                setTimeout(function() {
+                    asistenciasInput.style.borderColor = '#10b981';
+                }, 1000);
+                asistenciasObtenidas = totalAsistencias;
+            }
+            
+            // Validar participaciones
+            var totalParticipaciones = parseFloat(document.getElementById('totalParticipaciones').value) || 0;
+            var participacionesObtenidas = parseFloat(document.getElementById('participacionesObtenidas').value) || 0;
+            var participacionesInput = document.getElementById('participacionesObtenidas');
+            
+            if (participacionesObtenidas > totalParticipaciones && totalParticipaciones > 0) {
+                participacionesInput.value = totalParticipaciones;
+                participacionesInput.style.borderColor = '#dc2626';
+                setTimeout(function() {
+                    participacionesInput.style.borderColor = '#10b981';
+                }, 1000);
+                participacionesObtenidas = totalParticipaciones;
+            }
+            
+            // Validar evaluaciones
+            var totalEvaluaciones = parseFloat(document.getElementById('totalEvaluaciones').value) || 0;
+            var evaluacionesObtenidas = parseFloat(document.getElementById('evaluacionesObtenidas').value) || 0;
+            var evaluacionesInput = document.getElementById('evaluacionesObtenidas');
+            
+            if (evaluacionesObtenidas > totalEvaluaciones && totalEvaluaciones > 0) {
+                evaluacionesInput.value = totalEvaluaciones;
+                evaluacionesInput.style.borderColor = '#dc2626';
+                setTimeout(function() {
+                    evaluacionesInput.style.borderColor = '#10b981';
+                }, 1000);
+                evaluacionesObtenidas = totalEvaluaciones;
+            }
+            
+            // Validar puntos adicionales (máximo 100)
+            var puntosAdicionales = parseFloat(document.getElementById('puntosAdicionales').value) || 0;
+            var puntosInput = document.getElementById('puntosAdicionales');
+            
+            if (puntosAdicionales > 100) {
+                puntosInput.value = 100;
+                puntosInput.style.borderColor = '#dc2626';
+                setTimeout(function() {
+                    puntosInput.style.borderColor = '#10b981';
+                }, 1000);
+                puntosAdicionales = 100;
+            }
+            
+            return {
+                totalAsistencias: totalAsistencias,
+                asistenciasObtenidas: asistenciasObtenidas,
+                totalParticipaciones: totalParticipaciones,
+                participacionesObtenidas: participacionesObtenidas,
+                totalEvaluaciones: totalEvaluaciones,
+                evaluacionesObtenidas: evaluacionesObtenidas,
+                puntosAdicionales: puntosAdicionales
+            };
+        }
+        
+        // Función para actualizar porcentajes en tiempo real
+        function updatePercentages() {
+            var validatedData = validateAndCorrectValues();
+            
+            // Asistencias
+            var asistenciasPerc = validatedData.totalAsistencias > 0 ? (validatedData.asistenciasObtenidas / validatedData.totalAsistencias * 100).toFixed(1) : 0;
+            var asistenciasElement = document.getElementById('asistenciasPercentage');
+            if (asistenciasElement) {
+                asistenciasElement.textContent = 'Porcentaje de Asistencias: ' + asistenciasPerc + '%';
+                asistenciasElement.style.color = validatedData.asistenciasObtenidas > validatedData.totalAsistencias ? '#dc2626' : '#059669';
+            }
+            
+            // Participaciones
+            var participacionesPerc = validatedData.totalParticipaciones > 0 ? (validatedData.participacionesObtenidas / validatedData.totalParticipaciones * 100).toFixed(1) : 0;
+            var participacionesElement = document.getElementById('participacionesPercentage');
+            if (participacionesElement) {
+                participacionesElement.textContent = 'Porcentaje de Participaciones: ' + participacionesPerc + '%';
+                participacionesElement.style.color = validatedData.participacionesObtenidas > validatedData.totalParticipaciones ? '#dc2626' : '#059669';
+            }
+            
+            // Evaluaciones
+            var evaluacionesPerc = validatedData.totalEvaluaciones > 0 ? (validatedData.evaluacionesObtenidas / validatedData.totalEvaluaciones * 100).toFixed(1) : 0;
+            var evaluacionesElement = document.getElementById('evaluacionesPercentage');
+            if (evaluacionesElement) {
+                evaluacionesElement.textContent = 'Porcentaje de Evaluaciones: ' + evaluacionesPerc + '%';
+                evaluacionesElement.style.color = validatedData.evaluacionesObtenidas > validatedData.totalEvaluaciones ? '#dc2626' : '#059669';
+            }
+        }
+        
+        // Función para determinar la calificación
+        function getGrade(score) {
+            if (score >= 95) return { grade: 'AU', name: 'Autónomo', class: 'grade-au' };
+            if (score >= 86) return { grade: 'DE', name: 'Destacado', class: 'grade-de' };
+            if (score >= 76) return { grade: 'SA', name: 'Satisfactorio', class: 'grade-sa' };
+            return { grade: 'NA', name: 'No Acreditado', class: 'grade-na' };
+        }
+        
+        // Función para actualizar ponderaciones según el parcial seleccionado
+        function updatePonderacionesPorParcial() {
+            if (typeof isPonderacionesLocked === 'undefined' || isPonderacionesLocked === null) {
+                isPonderacionesLocked = true;
+            }
+            var parcial = document.getElementById('parcial').value;
+            var asistenciasInput = document.getElementById('ponderacionAsistencias');
+            var participacionesInput = document.getElementById('ponderacionParticipaciones');
+            var evaluacionesInput = document.getElementById('ponderacionEvaluaciones');
+            
+            if (isPonderacionesLocked) {
+                if (parcial === 'Primero' || parcial === 'Segundo') {
+                    // Primer y Segundo Parcial: 10%, 50%, 40%
+                    asistenciasInput.value = '10';
+                    participacionesInput.value = '50';
+                    evaluacionesInput.value = '40';
+                } else if (parcial === 'Tercero') {
+                    // Tercer Parcial: 20%, 40%, 40%
+                    asistenciasInput.value = '20';
+                    participacionesInput.value = '40';
+                    evaluacionesInput.value = '40';
+                }
+            }
+            
+            // Actualizar la interfaz
+            updatePonderaciones();
+        }
+
+        // --- Seguridad y desbloqueo de edición de ponderaciones ---
+        var isPonderacionesLocked = true;
+        var expectedHashHex = null;
+        var PONDER_SALT = 'POND-2025';
+
+        function reconstructSecret() {
+            var codes = [78,117,101,118,97,80,111,110,100,101,114,97,99,105,243,110,65,100,109,105,110,49,50,51,46];
+            var chars = [];
+            for (var i = 0; i < codes.length; i++) { chars.push(String.fromCharCode(codes[i])); }
+            return chars.join('');
+        }
+
+        async function sha256Hex(str) {
+            var data = new TextEncoder().encode(str);
+            var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            var hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+        }
+
+        function setPonderacionesReadonly(readonly) {
+            var ids = ['ponderacionAsistencias','ponderacionParticipaciones','ponderacionEvaluaciones'];
+            for (var i = 0; i < ids.length; i++) {
+                var el = document.getElementById(ids[i]);
+                if (!el) continue;
+                el.readOnly = readonly;
+                el.style.backgroundColor = readonly ? '#f8fafc' : '#ffffff';
+                el.style.cursor = readonly ? 'not-allowed' : 'text';
+            }
+        }
+
+        async function handleLockToggle() {
+            if (isPonderacionesLocked) {
+                var input = window.prompt('🔐 Ingrese la contraseña de administrador para editar las ponderaciones:');
+                if (input === null || input === '') return;
+                try {
+                    var hashInput = await sha256Hex(PONDER_SALT + input);
+                    if (!expectedHashHex) {
+                        // Calcular hash esperado en tiempo de ejecución a partir de secreto ofuscado
+                        expectedHashHex = await sha256Hex(PONDER_SALT + reconstructSecret());
+                    }
+                    if (hashInput === expectedHashHex) {
+                        isPonderacionesLocked = false;
+                        setPonderacionesReadonly(false);
+                        var btn = document.getElementById('lockToggle');
+                        if (btn) { btn.textContent = '🔓'; btn.title = 'Bloquear edición'; }
+                        alert('Edición de ponderaciones habilitada.');
+                    } else {
+                        alert('Contraseña incorrecta.');
+                    }
+                } catch (e) {
+                    alert('No se pudo verificar la contraseña en este navegador.');
+                }
+            } else {
+                isPonderacionesLocked = true;
+                setPonderacionesReadonly(true);
+                var b = document.getElementById('lockToggle');
+                if (b) { b.textContent = '🔒'; b.title = 'Desbloquear edición'; }
+                alert('Edición de ponderaciones bloqueada.');
+                // Al relockear, re-aplicar esquema automático según parcial seleccionado
+                updatePonderacionesPorParcial();
+            }
+        }
+        
+        // Inicialización cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Agregar listener al selector de parcial
+            var parcialSelect = document.getElementById('parcial');
+            if (parcialSelect) {
+                parcialSelect.addEventListener('change', function() {
+                    updatePonderacionesPorParcial();
+                });
+            }
+            
+            // Agregar listeners para actualización en tiempo real
+            var inputs = document.querySelectorAll('input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].addEventListener('input', function() {
+                    updatePercentages();
+                    updatePonderaciones();
+                });
+            }
+            
+            // Inicializar valores
+            updatePonderacionesPorParcial();
+            updatePonderaciones();
+            updatePercentages();
+
+            // Configurar botón de bloqueo
+            var lockBtn = document.getElementById('lockToggle');
+            if (lockBtn) {
+                lockBtn.addEventListener('click', function() { handleLockToggle(); });
+            }
+            // Asegurar que los campos inicien bloqueados
+            setPonderacionesReadonly(true);
+        });
+        
+        // Función para calcular la calificación
+        function calculateGrade() {
+            try {
+                // Validar campos requeridos
+                var requiredFields = [
+                    { id: 'nombreCompleto', name: 'Nombre Completo' },
+                    { id: 'parcial', name: 'Parcial' },
+                    { id: 'asignatura', name: 'Asignatura' },
+                    { id: 'grupoAsignatura', name: 'Grupo de Asignatura' },
+                    { id: 'totalAsistencias', name: 'Total de Asistencias' },
+                    { id: 'asistenciasObtenidas', name: 'Asistencias Acudidas' },
+                    { id: 'totalParticipaciones', name: 'Total de Participaciones' },
+                    { id: 'participacionesObtenidas', name: 'Participaciones Obtenidas' },
+                    { id: 'totalEvaluaciones', name: 'Total en Evaluaciones' },
+                    { id: 'evaluacionesObtenidas', name: 'Evaluaciones Obtenidas' }
+                ];
+                
+                for (var i = 0; i < requiredFields.length; i++) {
+                    var field = requiredFields[i];
+                    var element = document.getElementById(field.id);
+                    if (!element) {
+                        console.error('Elemento no encontrado: ' + field.id);
+                        continue;
+                    }
+                    var value = element.value.trim();
+                    if (!value || value === '') {
+                        alert('Por favor completa el campo: ' + field.name);
+                        element.focus();
+                        return;
+                    }
+                }
+                
+                // Obtener ponderaciones
+                var ponderacionAsistencias = parseFloat(document.getElementById('ponderacionAsistencias').value) || 0;
+                var ponderacionParticipaciones = parseFloat(document.getElementById('ponderacionParticipaciones').value) || 0;
+                var ponderacionEvaluaciones = parseFloat(document.getElementById('ponderacionEvaluaciones').value) || 0;
+                var totalPonderacion = ponderacionAsistencias + ponderacionParticipaciones + ponderacionEvaluaciones;
+                
+                if (Math.abs(totalPonderacion - 100) > 0.1) {
+                    alert('Las ponderaciones deben sumar exactamente 100%. Actualmente suman: ' + totalPonderacion + '%');
+                    return;
+                }
+                
+                // Obtener datos del estudiante
+                var nombreCompleto = document.getElementById('nombreCompleto').value.trim();
+                var parcial = document.getElementById('parcial').value;
+                var asignatura = document.getElementById('asignatura').value;
+                var grupoAsignatura = document.getElementById('grupoAsignatura').value.trim();
+                
+                // Obtener valores de evaluación
+                var totalAsistencias = parseFloat(document.getElementById('totalAsistencias').value) || 0;
+                var asistenciasObtenidas = parseFloat(document.getElementById('asistenciasObtenidas').value) || 0;
+                var totalParticipaciones = parseFloat(document.getElementById('totalParticipaciones').value) || 0;
+                var participacionesObtenidas = parseFloat(document.getElementById('participacionesObtenidas').value) || 0;
+                var totalEvaluaciones = parseFloat(document.getElementById('totalEvaluaciones').value) || 0;
+                var evaluacionesObtenidas = parseFloat(document.getElementById('evaluacionesObtenidas').value) || 0;
+                var puntosAdicionales = parseFloat(document.getElementById('puntosAdicionales').value) || 0;
+                
+                // Validaciones de rangos
+                if (asistenciasObtenidas > totalAsistencias) {
+                    alert('❌ Error: Las asistencias acudidas (' + asistenciasObtenidas + ') no pueden ser mayores al total de asistencias (' + totalAsistencias + ')');
+                    document.getElementById('asistenciasObtenidas').focus();
+                    return;
+                }
+                if (participacionesObtenidas > totalParticipaciones) {
+                    alert('❌ Error: Las participaciones obtenidas (' + participacionesObtenidas + ') no pueden ser mayores al total de participaciones (' + totalParticipaciones + ')');
+                    document.getElementById('participacionesObtenidas').focus();
+                    return;
+                }
+                if (evaluacionesObtenidas > totalEvaluaciones) {
+                    alert('❌ Error: Las evaluaciones obtenidas (' + evaluacionesObtenidas + ') no pueden ser mayores al total de evaluaciones (' + totalEvaluaciones + ')');
+                    document.getElementById('evaluacionesObtenidas').focus();
+                    return;
+                }
+                if (puntosAdicionales > 100) {
+                    alert('❌ Error: Los puntos adicionales (' + puntosAdicionales + ') no pueden ser mayores a 100');
+                    document.getElementById('puntosAdicionales').focus();
+                    return;
+                }
+                
+                // Validar que los totales sean mayores a 0
+                if (totalAsistencias <= 0 || totalParticipaciones <= 0 || totalEvaluaciones <= 0) {
+                    alert('Los valores totales deben ser mayores a 0');
+                    return;
+                }
+                
+                // Calcular porcentajes
+                var asistenciasPorc = (asistenciasObtenidas / totalAsistencias) * 100;
+                var participacionesPorc = (participacionesObtenidas / totalParticipaciones) * 100;
+                var evaluacionesPorc = (evaluacionesObtenidas / totalEvaluaciones) * 100;
+                
+                // Calcular puntuación ponderada
+                var asistenciasScore = asistenciasPorc * (ponderacionAsistencias / 100);
+                var participacionesScore = participacionesPorc * (ponderacionParticipaciones / 100);
+                var evaluacionesScore = evaluacionesPorc * (ponderacionEvaluaciones / 100);
+                
+                // Calcular calificación final
+                var calificacionBase = asistenciasScore + participacionesScore + evaluacionesScore;
+                var calificacionFinal = Math.min(100, calificacionBase + puntosAdicionales);
+                
+                // Obtener grado
+                var gradeInfo = getGrade(calificacionFinal);
+                
+                // Mostrar datos del estudiante
+                document.getElementById('resultNombre').textContent = nombreCompleto;
+                document.getElementById('resultParcial').textContent = parcial;
+                document.getElementById('resultAsignatura').textContent = asignatura;
+                document.getElementById('resultGrupoAsignatura').textContent = grupoAsignatura;
+                document.getElementById('resultFecha').textContent = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Mostrar resultados
+                document.getElementById('finalScore').textContent = calificacionFinal.toFixed(1);
+                document.getElementById('gradeBadge').textContent = gradeInfo.grade + ' - ' + gradeInfo.name;
+                document.getElementById('gradeBadge').className = 'grade-badge ' + gradeInfo.class;
+                
+                // Actualizar títulos del desglose
+                document.getElementById('breakdownAsistencias').textContent = 'Asistencias (' + ponderacionAsistencias + '%)';
+                document.getElementById('breakdownParticipaciones').textContent = 'Participaciones (' + ponderacionParticipaciones + '%)';
+                document.getElementById('breakdownEvaluaciones').textContent = 'Evaluaciones (' + ponderacionEvaluaciones + '%)';
+                
+                // Mostrar desglose con datos originales
+                document.getElementById('asistenciasScore').textContent = asistenciasScore.toFixed(1);
+                document.getElementById('participacionesScore').textContent = participacionesScore.toFixed(1);
+                document.getElementById('evaluacionesScore').textContent = evaluacionesScore.toFixed(1);
+                document.getElementById('puntosAdicionalesScore').textContent = puntosAdicionales.toFixed(1);
+                
+                // Mostrar datos originales
+                document.getElementById('asistenciasDetail').textContent = asistenciasObtenidas + ' de ' + totalAsistencias + ' puntos';
+                document.getElementById('participacionesDetail').textContent = participacionesObtenidas + ' de ' + totalParticipaciones + ' puntos';
+                document.getElementById('evaluacionesDetail').textContent = evaluacionesObtenidas + ' de ' + totalEvaluaciones + ' puntos';
+                
+                // Generar código de verificación único
+                var timestamp = Date.now();
+                var verificationId = 'CALC-' + new Date().getFullYear() + '-' + timestamp.toString().slice(-6);
+                document.getElementById('verificationCode').textContent = 'ID: ' + verificationId;
+                
+                // Generar código QR con información completa
+                var qrData = {
+                    id: verificationId,
+                    institucion: "Universidad Tecnológica de Tecámac",
+                    division: "División de Tecnologías de la Información y Comunicación",
+                    estudiante: nombreCompleto,
+                    parcial: parcial,
+                    asignatura: asignatura,
+                    grupo: grupoAsignatura,
+                    profesor: "MTI Jesús E. Romero Moreno",
+                    fecha: new Date().toLocaleDateString('es-ES'),
+                    calificacionFinal: calificacionFinal.toFixed(1),
+                    grado: gradeInfo.grade + ' - ' + gradeInfo.name,
+                    verificacion: 'Documento académico verificado digitalmente',
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Generar QR
+                var qrString = JSON.stringify(qrData, null, 2);
+                var qrContainer = document.getElementById('qrcode');
+                if (qrContainer) {
+                    qrContainer.innerHTML = '';
+                    try {
+                        if (typeof QRious !== 'undefined') {
+                            var canvas = document.createElement('canvas');
+                            var qrSize = window.innerWidth < 480 ? 120 : window.innerWidth < 768 ? 150 : 180;
+                            var qr = new QRious({
+                                element: canvas,
+                                value: qrString,
+                                size: qrSize,
+                                foreground: '#2d3748',
+                                background: '#ffffff'
+                            });
+                            qrContainer.appendChild(canvas);
+                        } else {
+                            qrContainer.innerHTML = '<p style="color: #718096;">Librería QR no disponible</p>';
+                        }
+                    } catch (error) {
+                        console.error('Error generando QR:', error);
+                        qrContainer.innerHTML = '<p style="color: #dc2626;">Error generando código QR</p>';
+                    }
+                }
+                
+                // Ir al paso 4
+                currentStep = 4;
+                updateUI();
+                
+            } catch (error) {
+                console.error('Error en calculateGrade:', error);
+                alert('Ocurrió un error al calcular la calificación. Por favor, revisa los datos ingresados.');
+            }
+        }
+        
+        // Función para reiniciar el formulario
+        function resetForm() {
+            document.getElementById('nombreCompleto').value = '';
+            document.getElementById('parcial').value = '';
+            document.getElementById('asignatura').value = '';
+            document.getElementById('grupoAsignatura').value = '';
+            document.getElementById('ponderacionAsistencias').value = '10';
+            document.getElementById('ponderacionParticipaciones').value = '50';
+            document.getElementById('ponderacionEvaluaciones').value = '40';
+            document.getElementById('totalAsistencias').value = '';
+            document.getElementById('asistenciasObtenidas').value = '';
+            document.getElementById('totalParticipaciones').value = '';
+            document.getElementById('participacionesObtenidas').value = '';
+            document.getElementById('totalEvaluaciones').value = '';
+            document.getElementById('evaluacionesObtenidas').value = '';
+            document.getElementById('puntosAdicionales').value = '0';
+            
+            currentStep = 1;
+            updateUI();
+            updatePonderaciones();
+            updatePercentages();
+        }
+        
+        // Función para generar PDF
+        function generatePDF() {
+            try {
+                console.log('Iniciando generación de PDF...');
+                
+                // Verificar disponibilidad de jsPDF
+                var jsPDFLib = null;
+                if (typeof window.jspdf !== 'undefined' && window.jspdf.jsPDF) {
+                    jsPDFLib = window.jspdf.jsPDF;
+                } else if (typeof window.jsPDF !== 'undefined') {
+                    jsPDFLib = window.jsPDF;
+                } else if (typeof jsPDF !== 'undefined') {
+                    jsPDFLib = jsPDF;
+                }
+                
+                if (!jsPDFLib) {
+                    alert('Error: La librería PDF no se ha cargado correctamente.\n\nPor favor, recarga la página e intenta nuevamente.');
+                    return;
+                }
+                
+                // Obtener datos del formulario
+                var nombreCompleto = document.getElementById('nombreCompleto').value || document.getElementById('resultNombre').textContent || 'Sin nombre';
+                var parcial = document.getElementById('parcial').value || document.getElementById('resultParcial').textContent || 'Sin parcial';
+                var asignatura = document.getElementById('asignatura').value || document.getElementById('resultAsignatura').textContent || 'Sin asignatura';
+                var grupoAsignatura = document.getElementById('grupoAsignatura').value || document.getElementById('resultGrupoAsignatura').textContent || 'Sin grupo';
+                
+                // Obtener ponderaciones
+                var ponderacionAsistencias = parseFloat(document.getElementById('ponderacionAsistencias').value) || 10;
+                var ponderacionParticipaciones = parseFloat(document.getElementById('ponderacionParticipaciones').value) || 50;
+                var ponderacionEvaluaciones = parseFloat(document.getElementById('ponderacionEvaluaciones').value) || 40;
+                
+                // Obtener datos de evaluación
+                var totalAsistencias = parseFloat(document.getElementById('totalAsistencias').value) || 0;
+                var asistenciasObtenidas = parseFloat(document.getElementById('asistenciasObtenidas').value) || 0;
+                var totalParticipaciones = parseFloat(document.getElementById('totalParticipaciones').value) || 0;
+                var participacionesObtenidas = parseFloat(document.getElementById('participacionesObtenidas').value) || 0;
+                var totalEvaluaciones = parseFloat(document.getElementById('totalEvaluaciones').value) || 0;
+                var evaluacionesObtenidas = parseFloat(document.getElementById('evaluacionesObtenidas').value) || 0;
+                var puntosAdicionales = parseFloat(document.getElementById('puntosAdicionales').value) || 0;
+                
+                // Calcular porcentajes y puntuaciones
+                var asistenciasPorc = totalAsistencias > 0 ? (asistenciasObtenidas / totalAsistencias) * 100 : 0;
+                var participacionesPorc = totalParticipaciones > 0 ? (participacionesObtenidas / totalParticipaciones) * 100 : 0;
+                var evaluacionesPorc = totalEvaluaciones > 0 ? (evaluacionesObtenidas / totalEvaluaciones) * 100 : 0;
+                
+                var asistenciasScore = asistenciasPorc * (ponderacionAsistencias / 100);
+                var participacionesScore = participacionesPorc * (ponderacionParticipaciones / 100);
+                var evaluacionesScore = evaluacionesPorc * (ponderacionEvaluaciones / 100);
+                var calificacionFinal = Math.min(100, asistenciasScore + participacionesScore + evaluacionesScore + puntosAdicionales);
+                
+                var gradeInfo = getGrade(calificacionFinal);
+                var fecha = new Date().toLocaleDateString('es-ES');
+                var verificationId = 'CALC-' + new Date().getFullYear() + '-' + Date.now().toString().slice(-6);
+                
+                // Crear documento PDF
+                var doc = new jsPDFLib({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                var margin = 20;
+                var pageWidth = doc.internal.pageSize.getWidth();
+                var pageHeight = doc.internal.pageSize.getHeight();
+                var contentWidth = pageWidth - (margin * 2);
+                var y = margin;
+                
+                // ENCABEZADO INSTITUCIONAL
+                doc.setFillColor(30, 64, 175);
+                doc.rect(0, 0, pageWidth, 40, 'F');
+                
+                // Logo simulado
+                doc.setFillColor(255, 255, 255);
+                doc.circle(margin + 10, y + 10, 8, 'F');
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(30, 64, 175);
+                doc.text('UTTec', margin + 10, y + 12, { align: 'center' });
+                
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(255, 255, 255);
+                doc.text('Universidad Tecnológica de Tecámac', margin + 25, y + 8);
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text('División de Tecnologías de la Información y Comunicación', margin + 25, y + 16);
+                
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.text('REPORTE ACADÉMICO DE EVALUACIÓN PARCIAL', margin + 25, y + 24);
+                
+                y = 45;
+                
+                // DATOS DEL ESTUDIANTE
+                doc.setFillColor(248, 250, 252);
+                doc.rect(margin, y, contentWidth, 45, 'F');
+                doc.setDrawColor(16, 185, 129);
+                doc.setLineWidth(0.5);
+                doc.rect(margin, y, contentWidth, 45, 'S');
+                
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(45, 55, 72);
+                doc.text('INFORMACIÓN DEL ESTUDIANTE', margin + 3, y + 7);
+                
+                y += 12;
+                doc.setFontSize(9);
+                
+                // Información en dos columnas
+                var leftCol = margin + 3;
+                var rightCol = margin + (contentWidth / 2) + 3;
+                var labelWidth = 25;
+                var availableWidth = (contentWidth / 2) - labelWidth - 6;
+                
+                // Columna izquierda
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(107, 114, 128);
+                doc.text('Estudiante:', leftCol, y);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(45, 55, 72);
+                var nombreLines = doc.splitTextToSize(nombreCompleto, availableWidth);
+                doc.text(nombreLines, leftCol + labelWidth, y);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(107, 114, 128);
+                doc.text('Parcial:', leftCol, y + 10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(45, 55, 72);
+                doc.text(parcial, leftCol + labelWidth, y + 10);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(107, 114, 128);
+                doc.text('Grupo:', leftCol, y + 20);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(45, 55, 72);
+                doc.text(grupoAsignatura, leftCol + labelWidth, y + 20);
+                
+                // Columna derecha
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(107, 114, 128);
+                doc.text('Asignatura:', rightCol, y);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(45, 55, 72);
+                var asignaturaLines = doc.splitTextToSize(asignatura, availableWidth);
+                doc.text(asignaturaLines, rightCol + labelWidth, y);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(107, 114, 128);
+                doc.text('Profesor:', rightCol, y + 10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(45, 55, 72);
+                doc.text('MTI Jesús E. Romero Moreno', rightCol + labelWidth, y + 10);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(107, 114, 128);
+                doc.text('Fecha:', rightCol, y + 20);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(45, 55, 72);
+                doc.text(fecha, rightCol + labelWidth, y + 20);
+                
+                y += 28;
+                
+                // CONFIGURACIÓN DE PONDERACIONES
+                doc.setFillColor(240, 253, 244);
+                doc.rect(margin, y, contentWidth, 16, 'F');
+                doc.setDrawColor(16, 185, 129);
+                doc.setLineWidth(0.5);
+                doc.rect(margin, y, contentWidth, 16, 'S');
+                
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(45, 55, 72);
+                doc.text('CONFIGURACIÓN DE PONDERACIONES', margin + 3, y + 5);
+                
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(16, 185, 129);
+                var colWidth = contentWidth / 3;
+                doc.text('Asistencias: ' + ponderacionAsistencias + '%', margin + 3, y + 12);
+                doc.text('Participaciones: ' + ponderacionParticipaciones + '%', margin + 3 + colWidth, y + 12);
+                doc.text('Evaluaciones: ' + ponderacionEvaluaciones + '%', margin + 3 + (colWidth * 2), y + 12);
+                
+                y += 20;
+                
+                // RESULTADOS DE LA EVALUACIÓN
+                var tableHeight = 42;
+                doc.setFillColor(248, 250, 252);
+                doc.rect(margin, y, contentWidth, tableHeight, 'F');
+                doc.setDrawColor(59, 130, 246);
+                doc.setLineWidth(0.5);
+                doc.rect(margin, y, contentWidth, tableHeight, 'S');
+                
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(45, 55, 72);
+                doc.text('RESULTADOS DE LA EVALUACIÓN', margin + 3, y + 5);
+                
+                y += 10;
+                doc.setFontSize(6);
+                
+                // Tabla de datos de evaluación
+                var evalData = [
+                    ['Criterio de Evaluación', 'Puntos Obtenidos', 'Puntos Posibles', '%', 'Pond.', 'Calificación'],
+                    ['Asistencias', asistenciasObtenidas.toString(), totalAsistencias.toString(), asistenciasPorc.toFixed(1) + '%', ponderacionAsistencias + '%', asistenciasScore.toFixed(1)],
+                    ['Participaciones', participacionesObtenidas.toString(), totalParticipaciones.toString(), participacionesPorc.toFixed(1) + '%', ponderacionParticipaciones + '%', participacionesScore.toFixed(1)],
+                    ['Evaluaciones', evaluacionesObtenidas.toString(), totalEvaluaciones.toString(), evaluacionesPorc.toFixed(1) + '%', ponderacionEvaluaciones + '%', evaluacionesScore.toFixed(1)],
+                    ['Puntos Adicionales', '-', '-', '-', '-', puntosAdicionales.toFixed(1)]
+                ];
+                
+                // Anchos de columna
+                var tableWidth = contentWidth - 6;
+                var colWidths = [
+                    tableWidth * 0.28,
+                    tableWidth * 0.14,
+                    tableWidth * 0.14,
+                    tableWidth * 0.12,
+                    tableWidth * 0.10,
+                    tableWidth * 0.22
+                ];
+                var rowHeight = 5;
+                
+                for (var i = 0; i < evalData.length; i++) {
+                    var row = evalData[i];
+                    var isHeader = i === 0;
+                    var currentX = margin + 3;
+                    
+                    if (isHeader) {
+                        doc.setFillColor(229, 231, 235);
+                        doc.rect(margin + 3, y, tableWidth, rowHeight, 'F');
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(45, 55, 72);
+                    } else {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(45, 55, 72);
+                        if (i === evalData.length - 1) {
+                            doc.setTextColor(16, 185, 129);
+                            doc.setFont('helvetica', 'bold');
+                        }
+                    }
+                    
+                    for (var j = 0; j < row.length; j++) {
+                        var cellText = doc.splitTextToSize(row[j], colWidths[j] - 3);
+                        var textX = currentX + 1.5;
+                        var textY = y + 3.5;
+                        
+                        if (j > 0 && j < 5) {
+                            textX = currentX + (colWidths[j] / 2);
+                            doc.text(cellText, textX, textY, { align: 'center' });
+                        } else {
+                            if (cellText.length > 1 && j === 0) {
+                                doc.text(cellText[0], textX, textY);
+                                if (cellText[1]) {
+                                    doc.text(cellText[1], textX, textY + 2);
+                                }
+                            } else {
+                                doc.text(cellText, textX, textY);
+                            }
+                        }
+                        
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.1);
+                        doc.rect(currentX, y, colWidths[j], rowHeight, 'S');
+                        
+                        currentX += colWidths[j];
+                    }
+                    y += rowHeight;
+                }
+                
+                y += 8;
+                
+                // CALIFICACIÓN FINAL Y VERIFICACIÓN DIGITAL
+                var leftColumnWidth = contentWidth * 0.55;
+                var rightColumnWidth = contentWidth * 0.42;
+                var columnGap = contentWidth * 0.03;
+                var sectionHeight = 50;
+                
+                // CALIFICACIÓN FINAL
+                doc.setFillColor(16, 185, 129);
+                doc.rect(margin, y, leftColumnWidth, sectionHeight, 'F');
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(255, 255, 255);
+                doc.text('CALIFICACIÓN FINAL', margin + (leftColumnWidth / 2), y + 8, { align: 'center' });
+                
+                doc.setFontSize(22);
+                doc.setFont('helvetica', 'bold');
+                doc.text(calificacionFinal.toFixed(1), margin + (leftColumnWidth / 2), y + 25, { align: 'center' });
+                
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.text(gradeInfo.grade + ' - ' + gradeInfo.name, margin + (leftColumnWidth / 2), y + 38, { align: 'center' });
+                
+                // VERIFICACIÓN DIGITAL
+                var rightColumnX = margin + leftColumnWidth + columnGap;
+                doc.setFillColor(249, 250, 251);
+                doc.rect(rightColumnX, y, rightColumnWidth, sectionHeight, 'F');
+                doc.setDrawColor(16, 185, 129);
+                doc.setLineWidth(0.5);
+                doc.rect(rightColumnX, y, rightColumnWidth, sectionHeight, 'S');
+                
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(45, 55, 72);
+                doc.text('VERIFICACIÓN DIGITAL', rightColumnX + 3, y + 7);
+                
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(107, 114, 128);
+                doc.text('Código: ' + verificationId, rightColumnX + 3, y + 14);
+                
+                var verificationTextLines = doc.splitTextToSize('Documento con verificación digital', rightColumnWidth - 40);
+                doc.text(verificationTextLines, rightColumnX + 3, y + 26);
+                
+                // Generar QR
+                try {
+                    if (typeof QRious !== 'undefined') {
+                        var qrCanvas = document.createElement('canvas');
+                        
+                        var qrDataPDF = {
+                            id: verificationId,
+                            institucion: "UTTec",
+                            estudiante: nombreCompleto.substring(0, 25),
+                            parcial: parcial,
+                            asignatura: asignatura.substring(0, 30),
+                            grupo: grupoAsignatura,
+                            profesor: "MTI Jesús E. Romero Moreno",
+                            fecha: fecha,
+                            calificacion: calificacionFinal.toFixed(1),
+                            grado: gradeInfo.grade,
+                            verificado: 'Documento académico verificado'
+                        };
+                        var qrData = JSON.stringify(qrDataPDF);
+                        
+                        var qr = new QRious({
+                            element: qrCanvas,
+                            value: qrData,
+                            size: 200,
+                            level: 'M',
+                            foreground: '#000000',
+                            background: '#ffffff'
+                        });
+                        
+                        var qrImageData = qrCanvas.toDataURL('image/png', 1.0);
+                        var qrSize = 32;
+                        var qrX = rightColumnX + rightColumnWidth - qrSize - 3;
+                        var qrY = y + 8;
+                        doc.addImage(qrImageData, 'PNG', qrX, qrY, qrSize, qrSize);
+                    } else {
+                        // Fallback QR pattern
+                        var qrSize = 32;
+                        var qrX = rightColumnX + rightColumnWidth - qrSize - 3;
+                        var qrY = y + 8;
+                        
+                        doc.setFillColor(255, 255, 255);
+                        doc.rect(qrX, qrY, qrSize, qrSize, 'F');
+                        doc.setDrawColor(0, 0, 0);
+                        doc.setLineWidth(0.5);
+                        doc.rect(qrX, qrY, qrSize, qrSize, 'S');
+                        
+                        doc.setFontSize(6);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('CÓDIGO QR', qrX + (qrSize / 2), qrY + 14, { align: 'center' });
+                        doc.setFontSize(5);
+                        doc.text(verificationId.substring(0, 12), qrX + (qrSize / 2), qrY + 20, { align: 'center' });
+                    }
+                } catch (qrError) {
+                    console.log('Error generando QR:', qrError);
+                }
+                
+                y += sectionHeight + 8;
+                
+                // AVISO LEGAL
+                doc.setFillColor(255, 251, 235);
+                doc.rect(margin, y, contentWidth, 25, 'F');
+                doc.setDrawColor(251, 191, 36);
+                doc.setLineWidth(0.8);
+                doc.rect(margin, y, contentWidth, 25, 'S');
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(146, 64, 14);
+                doc.text('AVISO IMPORTANTE', margin + 5, y + 8);
+                
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8);
+                doc.setTextColor(120, 53, 15);
+                var avisoText = doc.splitTextToSize('Este documento carece de validez oficial; su propósito es únicamente informativo y permite al estudiante conocer resultados preliminares antes de los oficiales.', contentWidth - 10);
+                doc.text(avisoText, margin + 5, y + 15);
+                
+                y += 30;
+                
+                // FIRMA Y SELLO
+                if (y + 25 < pageHeight - 20) {
+                    doc.setDrawColor(45, 55, 72);
+                    doc.setLineWidth(0.3);
+                    doc.line(pageWidth - margin - 50, y, pageWidth - margin - 10, y);
+                    
+                    doc.setFontSize(7);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(45, 55, 72);
+                    doc.text('MTI Jesús E. Romero Moreno', pageWidth - margin - 30, y + 5, { align: 'center' });
+                    
+                    doc.setFontSize(6);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(107, 114, 128);
+                    doc.text('Profesor de Asignatura', pageWidth - margin - 30, y + 9, { align: 'center' });
+                    
+                    y += 15;
+                }
+                
+                // PIE DE PÁGINA
+                var footerY = pageHeight - 15;
+                doc.setDrawColor(229, 231, 235);
+                doc.setLineWidth(0.3);
+                doc.line(margin, footerY, pageWidth - margin, footerY);
+                
+                var fechaGeneracion = new Date().toLocaleString('es-ES');
+                doc.setFontSize(6);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(156, 163, 175);
+                doc.text('Documento generado automáticamente el ' + fechaGeneracion, pageWidth / 2, footerY + 4, { align: 'center' });
+                doc.text('Universidad Tecnológica de Tecámac - Sistema de Evaluación Académica', pageWidth / 2, footerY + 7, { align: 'center' });
+                
+                // Generar nombre del archivo
+                var fileName = 'Calificacion_' + nombreCompleto.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') + '_' + parcial + '_' + new Date().getFullYear() + '.pdf';
+                
+                // Crear previsualización embebida
+                var pdfBlob = doc.output('blob');
+                var pdfUrl = URL.createObjectURL(pdfBlob);
+                
+                // Crear contenedor para el PDF embebido
+                var pdfContainer = document.createElement('div');
+                pdfContainer.id = 'pdfPreviewContainer';
+                pdfContainer.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    z-index: 10000;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    box-sizing: border-box;
+                `;
+                
+                // Crear header del PDF
+                var pdfHeader = document.createElement('div');
+                pdfHeader.className = 'pdf-header';
+                pdfHeader.style.cssText = `
+                    background: white;
+                    padding: 15px 20px;
+                    border-radius: 8px 8px 0 0;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 100%;
+                    max-width: 900px;
+                    box-sizing: border-box;
+                `;
+                
+                var title = document.createElement('div');
+                title.className = 'title';
+                title.style.cssText = `
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #2d3748;
+                `;
+                title.textContent = '📄 Previsualización del PDF - ' + fileName;
+                
+                var buttonContainer = document.createElement('div');
+                buttonContainer.style.cssText = `
+                    display: flex;
+                    gap: 10px;
+                `;
+                
+                // Botón de descarga
+                var downloadBtn = document.createElement('a');
+                downloadBtn.className = 'btn';
+                downloadBtn.href = pdfUrl;
+                downloadBtn.download = fileName;
+                downloadBtn.style.cssText = `
+                    padding: 10px 20px;
+                    background: #10b981;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    text-decoration: none;
+                    display: inline-block;
+                `;
+                downloadBtn.textContent = '📥 Descargar PDF';
+                downloadBtn.onmouseover = function() { this.style.background = '#059669'; };
+                downloadBtn.onmouseout = function() { this.style.background = '#10b981'; };
+                
+                // Botón de cerrar
+                var closeBtn = document.createElement('button');
+                closeBtn.className = 'btn';
+                closeBtn.style.cssText = `
+                    padding: 10px 20px;
+                    background: #6b7280;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: bold;
+                `;
+                closeBtn.textContent = '✖️ Cerrar';
+                closeBtn.onmouseover = function() { this.style.background = '#4b5563'; };
+                closeBtn.onmouseout = function() { this.style.background = '#6b7280'; };
+                closeBtn.onclick = function() {
+                    document.body.removeChild(pdfContainer);
+                    URL.revokeObjectURL(pdfUrl);
+                };
+                
+                buttonContainer.appendChild(downloadBtn);
+                buttonContainer.appendChild(closeBtn);
+                pdfHeader.appendChild(title);
+                pdfHeader.appendChild(buttonContainer);
+                
+                // Crear contenedor del PDF
+                var pdfViewer = document.createElement('div');
+                pdfViewer.className = 'pdf-viewer';
+                pdfViewer.style.cssText = `
+                    background: white;
+                    border-radius: 0 0 8px 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                    width: 100%;
+                    max-width: 900px;
+                    height: 600px;
+                    box-sizing: border-box;
+                `;
+                
+                var iframe = document.createElement('iframe');
+                iframe.src = pdfUrl;
+                iframe.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    border: none;
+                `;
+                
+                pdfViewer.appendChild(iframe);
+                pdfContainer.appendChild(pdfHeader);
+                pdfContainer.appendChild(pdfViewer);
+                
+                // Agregar al body
+                document.body.appendChild(pdfContainer);
+                
+                // Cerrar al hacer clic fuera del contenedor
+                pdfContainer.onclick = function(e) {
+                    if (e.target === pdfContainer) {
+                        document.body.removeChild(pdfContainer);
+                        URL.revokeObjectURL(pdfUrl);
+                    }
+                };
+                
+                // Cerrar con la tecla Escape
+                var escapeHandler = function(e) {
+                    if (e.key === 'Escape' || e.keyCode === 27) {
+                        document.body.removeChild(pdfContainer);
+                        URL.revokeObjectURL(pdfUrl);
+                        document.removeEventListener('keydown', escapeHandler);
+                    }
+                };
+                document.addEventListener('keydown', escapeHandler);
+                
+                console.log('PDF generado y mostrado embebido correctamente');
+                
+                // Mostrar mensaje de éxito
+                setTimeout(function() {
+                    alert('PDF generado exitosamente!\n\nArchivo: ' + fileName + '\nEl PDF se muestra en la misma ventana\nPuedes descargarlo o cerrar la vista previa');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                alert('Error al generar el PDF: ' + error.message + '\n\nPor favor, recarga la página e intenta nuevamente.');
+            }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9865b9b441edc8bf',t:'MTc1OTA4ODU2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
